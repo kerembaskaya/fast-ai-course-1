@@ -1,0 +1,82 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "fast-ai-course-1",
+    "section": "",
+    "text": "This file will become your README and also the index of your documentation.",
+    "crumbs": [
+      "fast-ai-course-1"
+    ]
+  },
+  {
+    "objectID": "index.html#developer-guide",
+    "href": "index.html#developer-guide",
+    "title": "fast-ai-course-1",
+    "section": "Developer Guide",
+    "text": "Developer Guide\nIf you are new to using nbdev here are some useful pointers to get you started.\n\nInstall fast_ai_course_1 in Development mode\n# make sure fast_ai_course_1 package is installed in development mode\n$ pip install -e .\n\n# make changes under nbs/ directory\n# ...\n\n# compile to have changes apply to fast_ai_course_1\n$ nbdev_prepare",
+    "crumbs": [
+      "fast-ai-course-1"
+    ]
+  },
+  {
+    "objectID": "index.html#usage",
+    "href": "index.html#usage",
+    "title": "fast-ai-course-1",
+    "section": "Usage",
+    "text": "Usage\n\nInstallation\nInstall latest from the GitHub repository:\n$ pip install git+https://github.com/kerembaskaya/fast-ai-course-1.git\nor from conda\n$ conda install -c kerembaskaya fast_ai_course_1\nor from pypi\n$ pip install fast_ai_course_1\n\n\nDocumentation\nDocumentation can be found hosted on this GitHub repository’s pages. Additionally you can find package manager specific guidelines on conda and pypi respectively.",
+    "crumbs": [
+      "fast-ai-course-1"
+    ]
+  },
+  {
+    "objectID": "index.html#how-to-use",
+    "href": "index.html#how-to-use",
+    "title": "fast-ai-course-1",
+    "section": "How to use",
+    "text": "How to use\nFill me in please! Don’t forget code examples:\n\n1+1\n\n2",
+    "crumbs": [
+      "fast-ai-course-1"
+    ]
+  },
+  {
+    "objectID": "01_video_notes.html",
+    "href": "01_video_notes.html",
+    "title": "Step 1: Download images of birds and non-birds",
+    "section": "",
+    "text": "from duckduckgo_search import DDGS\nfrom fastcore.all import * \nimport time, json\ndef search_images(keywords, max_images=200): return L(DDGS().images(keywords, max_results=max_images)).itemgot('image')\nurls = search_images('bird photos', max_images=1)\nurls[0]\n\n'https://images.pexels.com/photos/326900/pexels-photo-326900.jpeg?cs=srgb&dl=wood-flight-bird-326900.jpg&fm=jpg'\nfrom fastdownload import download_url\ndest = 'resources/L1/bird.jpg'\ndownload_url(urls[0], dest, show_progress=False)\n\nfrom fastai.vision.all import *\nim = Image.open(dest)\nim.to_thumb(256,256)\nforest_dest = 'resources/L1/forest.jpg'\ndownload_url(search_images('forest photos', max_images=1)[0], forest_dest, show_progress=False)\nImage.open(forest_dest).to_thumb(256, 256)\nsearches = 'forest', 'bird'\npath = Path('resources/L1/bird_or_not')\n\nfor o in searches:\n    dest = (path/o)\n    dest.mkdir(exist_ok=True, parents=True)\n    download_images(dest, urls=search_images(f'{o} photo'))\n    time.sleep(5)\n    resize_images(path/o, max_size=400, dest=path/o)",
+    "crumbs": [
+      "Step 1: Download images of birds and non-birds"
+    ]
+  },
+  {
+    "objectID": "01_video_notes.html#step-2-train-our-model",
+    "href": "01_video_notes.html#step-2-train-our-model",
+    "title": "Step 1: Download images of birds and non-birds",
+    "section": "Step 2: Train our model",
+    "text": "Step 2: Train our model\n\nfailed = verify_images(get_image_files(path))\nfailed.map(Path.unlink)\nlen(failed)\n\n9\n\n\n\nfailed\n\n(#9) [Path('resources/L1/bird_or_not/forest/abd784a1-3a25-44ef-bdc1-80b6534cf595.jpg'),Path('resources/L1/bird_or_not/forest/fe60f645-6e9b-430b-adb3-e2b0fcf88a69.jpg'),Path('resources/L1/bird_or_not/forest/181caa2c-e35c-4944-afef-93f8041cba69.jpg'),Path('resources/L1/bird_or_not/forest/e3f5bf43-1e42-441c-9b41-9071b5498155.jpg'),Path('resources/L1/bird_or_not/bird/635ac5ea-6cb9-4789-8701-27df1f14b07c.png'),Path('resources/L1/bird_or_not/bird/33f184ad-e975-4923-b596-788f92dd50e2.jpg'),Path('resources/L1/bird_or_not/bird/0ec2bdec-71a3-44c4-baae-0140fd524502.jpg'),Path('resources/L1/bird_or_not/bird/618e54b8-5c9d-46af-9fa6-33d7c6c8bf4e.jpg'),Path('resources/L1/bird_or_not/bird/0ae76c90-5071-45e2-8714-a11079008bac.jpg')]\n\n\n\ndls = DataBlock(\n    blocks=(ImageBlock, CategoryBlock),\n    get_items=get_image_files,\n    splitter=RandomSplitter(valid_pct=0.2, seed=42),\n    get_y=parent_label, \n    item_tfms=[Resize(192, method='squish')]).dataloaders(path, bs=32)\n\ndls.show_batch(max_n=6)\n\n\n\n\n\n\n\n\n\nlearn = vision_learner(dls, resnet18, metrics=error_rate)\nlearn.fine_tune(3)\n\n\n\n\n\n\n\n\nepoch\ntrain_loss\nvalid_loss\nerror_rate\ntime\n\n\n\n\n0\n0.165263\n0.029461\n0.003247\n00:05\n\n\n\n\n\n\n\n\n\n\n\n\nepoch\ntrain_loss\nvalid_loss\nerror_rate\ntime\n\n\n\n\n0\n0.019386\n0.000162\n0.000000\n00:07\n\n\n1\n0.021068\n0.000943\n0.000000\n00:06\n\n\n2\n0.016560\n0.000037\n0.000000\n00:07",
+    "crumbs": [
+      "Step 1: Download images of birds and non-birds"
+    ]
+  },
+  {
+    "objectID": "01_video_notes.html#step-3-use-our-model",
+    "href": "01_video_notes.html#step-3-use-our-model",
+    "title": "Step 1: Download images of birds and non-birds",
+    "section": "Step 3: Use our model",
+    "text": "Step 3: Use our model\n\nis_bird,_,probs = learn.predict(PILImage.create('resources/L1/bird.jpg'))\nprint(f\"This is a: {is_bird}.\")\nprint(f\"Probability it's a bird: {probs[0]:.4f}\")\n\n\n\n\n\n\n\n\nThis is a: bird.\nProbability it's a bird: 1.0000",
+    "crumbs": [
+      "Step 1: Download images of birds and non-birds"
+    ]
+  },
+  {
+    "objectID": "core.html",
+    "href": "core.html",
+    "title": "core",
+    "section": "",
+    "text": "source\n\nfoo\n\n foo ()",
+    "crumbs": [
+      "core"
+    ]
+  }
+]
