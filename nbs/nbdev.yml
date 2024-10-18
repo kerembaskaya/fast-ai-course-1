@@ -1,0 +1,9 @@
+project:
+  output-dir: _docs
+
+website:
+  title: "fast-ai-course-1"
+  site-url: "https://kerembaskaya.github.io/fast-ai-course-1"
+  description: "My notes on FastAI Course I"
+  repo-branch: main
+  repo-url: "https://github.com/kerembaskaya/fast-ai-course-1"
